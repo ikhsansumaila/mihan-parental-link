@@ -85,6 +85,12 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
             ]),
           ),
         ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: Enforcer.openMessage,
+          icon: const Icon(Icons.chat_bubble_outline),
+          label: const Text('Kirim pesan ke orang tua'),
+        ),
         const SizedBox(height: 16),
         Text('Pengaturan HP (dilakukan orang tua)', style: t.textTheme.titleMedium),
         const SizedBox(height: 4),

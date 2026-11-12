@@ -3,36 +3,51 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function uid() { return request.auth.uid; }
-    function isParent() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
+    // Email terverifikasi dari token (akun Google selalu terverifikasi), huruf kecil.
+    function myEmail() {
+      return request.auth.token.email_verified == true ? request.auth.token.email.lower() : null;
+    }
 
-    // Kode pairing 6 digit, dibuat orang tua, berlaku 15 menit, sekali pakai.
-    match /pairingCodes/{code} {
-      allow create: if isParent()
-        && code.matches('^[0-9]{6}$')
+    // Gmail anak yang didaftarkan orang tua. ID dokumen = Gmail huruf kecil.
+    match /children/{email} {
+      allow create: if signedIn()
+        && email.matches('^[^@\\s]+@[^@\\s]+$')
+        && email == email.lower()
+        && email != request.auth.token.email.lower()
         && request.resource.data.ownerUid == uid()
-        && request.resource.data.expiresAt is timestamp
-        && request.resource.data.expiresAt < request.time + duration.value(20, 'm');
-      // get (bukan list) supaya kode tidak bisa di-enumerasi.
-      allow get: if signedIn();
-      allow delete: if signedIn();
+        && request.resource.data.ownerEmail == request.auth.token.email
+        && request.resource.data.email == email
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0;
+      // Hanya pemilik yang boleh mengubah; kepemilikan tidak bisa dipindah.
+      allow update: if signedIn()
+        && resource.data.ownerUid == uid()
+        && request.resource.data.ownerUid == uid()
+        && request.resource.data.ownerEmail == request.auth.token.email
+        && request.resource.data.email == email;
+      allow delete: if signedIn() && resource.data.ownerUid == uid();
+      // Orang tua membaca miliknya; anak hanya dokumen dengan Gmail-nya sendiri.
+      allow get: if signedIn() && (resource.data.ownerUid == uid() || email == myEmail());
+      allow list: if signedIn() && resource.data.ownerUid == uid();
     }
 
     match /devices/{deviceId} {
       function isOwner() { return signedIn() && resource.data.ownerUid == uid(); }
       function isChild() { return signedIn() && resource.data.childUid == uid(); }
+      function childReg(email) { return /databases/$(database)/documents/children/$(email); }
 
       // resource == null → dokumen sudah dihapus; HP anak perlu tahu supaya melepas proteksi.
       allow get: if signedIn() && (resource == null || isOwner() || isChild());
-      allow list: if signedIn() && resource.data.ownerUid == uid();
+      // Orang tua: semua device miliknya. Anak: device miliknya sendiri (dipakai saat instal ulang).
+      allow list: if signedIn() && (resource.data.ownerUid == uid() || resource.data.childUid == uid());
 
-      // HP anak membuat dokumen dengan kode pairing yang valid.
+      // HP anak membuat dokumen dengan Gmail yang sudah didaftarkan orang tua.
       allow create: if signedIn()
+        && myEmail() != null
         && request.resource.data.childUid == uid()
-        && exists(/databases/$(database)/documents/pairingCodes/$(request.resource.data.pairingCode))
-        && get(/databases/$(database)/documents/pairingCodes/$(request.resource.data.pairingCode)).data.ownerUid
-             == request.resource.data.ownerUid
-        && get(/databases/$(database)/documents/pairingCodes/$(request.resource.data.pairingCode)).data.expiresAt
-             > request.time;
+        && request.resource.data.childEmail == myEmail()
+        && exists(childReg(myEmail()))
+        && get(childReg(myEmail())).data.ownerUid == request.resource.data.ownerUid;
 
       // Orang tua: boleh ubah apa saja kecuali kepemilikan.
       // Anak: hanya status & lastSeen (tidak bisa mengubah jadwal).
@@ -43,6 +58,27 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'lastSeen']));
 
       allow delete: if isOwner();
+
+      // Pesan dari HP anak ke orang tua.
+      match /messages/{msgId} {
+        function dev() { return get(/databases/$(database)/documents/devices/$(deviceId)).data; }
+
+        // Hanya HP anak pemilik device; isi dibatasi; waktu harus waktu server.
+        allow create: if signedIn()
+          && dev().childUid == uid()
+          && request.resource.data.keys().hasOnly(['text', 'createdAt', 'read'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 300
+          && request.resource.data.read == false
+          && request.resource.data.createdAt == request.time;
+        allow read: if signedIn() && (dev().ownerUid == uid() || dev().childUid == uid());
+        // Orang tua hanya boleh menandai sudah dibaca.
+        allow update: if signedIn()
+          && dev().ownerUid == uid()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        allow delete: if signedIn() && dev().ownerUid == uid();
+      }
     }
   }
 }

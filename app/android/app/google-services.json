@@ -12,7 +12,28 @@
           "package_name": "com.mihan.parentallink"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "864408224205-eveqqesg41qkgmkjqlo6b57rd7f8ilno.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mihan.parentallink",
+            "certificate_hash": "e1848b29b3ef17429971bc7b2d8e2cea0e9b61db"
+          }
+        },
+        {
+          "client_id": "864408224205-gjui8rhro7t9rqml9kic3cngr5u184qd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mihan.parentallink",
+            "certificate_hash": "09f0d24200748602ec0a450b3650afd6fbad5d1a"
+          }
+        },
+        {
+          "client_id": "864408224205-a201bmj6grbd77hg6oqpsasvuir0o22l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAVynXVrky4JCoCHyHwN1PSLOdmo0F3W3Q"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "864408224205-a201bmj6grbd77hg6oqpsasvuir0o22l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +57,12 @@
           "package_name": "com.octalink.octalink"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "864408224205-a201bmj6grbd77hg6oqpsasvuir0o22l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAVynXVrky4JCoCHyHwN1PSLOdmo0F3W3Q"
@@ -39,7 +70,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "864408224205-a201bmj6grbd77hg6oqpsasvuir0o22l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

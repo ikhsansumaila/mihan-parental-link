@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../data/google_auth.dart';
+
 class AuthPage extends StatefulWidget {
   final VoidCallback? onBack;
   const AuthPage({super.key, this.onBack});
@@ -37,6 +39,23 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
+  Future<void> _google() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      if (FirebaseAuth.instance.currentUser?.isAnonymous == true) await FirebaseAuth.instance.signOut();
+      await GoogleAuth.signIn();
+    } on FirebaseAuthException catch (e) {
+      if (mounted) setState(() => _error = _msg(e));
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _reset() async {
     if (_email.text.trim().isEmpty) {
       setState(() => _error = 'Isi email dulu.');
@@ -58,6 +77,9 @@ class _AuthPageState extends State<AuthPage> {
         'user-not-found' || 'wrong-password' || 'invalid-credential' => 'Email atau password salah.',
         'email-already-in-use' => 'Email sudah terdaftar. Silakan masuk.',
         'weak-password' => 'Password minimal 6 karakter.',
+        'account-exists-with-different-credential' =>
+          'Email ini sudah terdaftar dengan password. Masuk pakai email & password.',
+        'operation-not-allowed' => 'Metode login ini belum diaktifkan di Firebase Console.',
         _ => e.message ?? e.code,
       };
 
@@ -79,6 +101,24 @@ class _AuthPageState extends State<AuthPage> {
               Text(_register ? 'Buat akun orang tua' : 'Masuk sebagai orang tua',
                   textAlign: TextAlign.center, style: t.textTheme.bodyLarge),
               const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _busy ? null : _google,
+                icon: const Icon(Icons.login),
+                label: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Masuk dengan Google'),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text('atau pakai email', style: t.textTheme.bodySmall),
+                ),
+                const Expanded(child: Divider()),
+              ]),
+              const SizedBox(height: 20),
               TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
@@ -98,7 +138,7 @@ class _AuthPageState extends State<AuthPage> {
                 Text(_error!, style: TextStyle(color: t.colorScheme.error)),
               ],
               const SizedBox(height: 20),
-              FilledButton(
+              FilledButton.tonal(
                 onPressed: _busy ? null : _submit,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),

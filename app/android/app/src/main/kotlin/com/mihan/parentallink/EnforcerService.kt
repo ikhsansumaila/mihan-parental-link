@@ -146,6 +146,14 @@ class EnforcerService : Service(), LockState.Listener {
                 if (!snap.metadata.isFromCache) unpair()
                 return@addSnapshotListener
             }
+            snap.getString("unlockSecret")?.let { if (it != Prefs.unlockSecret(this)) Prefs.setUnlockSecret(this, it) }
+            // Perintah orang tua yang lebih baru dari pemakaian kode → kode tidak berlaku lagi.
+            val updatedAt = snap.getTimestamp("policyUpdatedAt")?.toDate()?.time ?: 0L
+            val unlockAt = Prefs.localUnlockAt(this)
+            if (unlockAt > 0 && updatedAt > unlockAt) {
+                Prefs.clearLocalUnlock(this)
+                LockState.refresh(this)
+            }
             @Suppress("UNCHECKED_CAST")
             val policy = snap.get("policy") as? Map<String, Any?>
             val json = policy?.let { JSONObject(it).toString() }
@@ -187,6 +195,8 @@ class EnforcerService : Service(), LockState.Listener {
             "battery" to batteryLevel(),
             "ignoringBattery" to getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName),
             "tz" to TimeZone.getDefault().id,
+            "unlockReady" to (Prefs.unlockSecret(this) != null),
+            "localUnlockUntil" to Prefs.activeLocalUnlockUntil(this),
             "deviceTime" to SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date()),
             "appVersion" to try { packageManager.getPackageInfo(packageName, 0).versionName } catch (_: Exception) { null },
         )

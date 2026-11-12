@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/schedule.dart';
+import '../../core/unlock_code.dart';
 import '../../data/repo.dart';
 import '../format.dart';
 import '../widgets/day_timeline.dart';
@@ -21,6 +23,7 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   late final Stream<DeviceInfo?> _stream = Repo.instance.device(widget.deviceId);
+  late final Stream<List<ChildMessage>> _messages = Repo.instance.messages(widget.deviceId);
   Timer? _ticker;
 
   @override
@@ -160,6 +163,16 @@ class _DevicePageState extends State<DevicePage> {
       _StatusCard(dev: dev, decision: decision),
       const SizedBox(height: 12),
 
+      // ---------------- pesan dari anak
+      _MessagesCard(
+        stream: _messages,
+        onRead: (ids) => _run(() => _repo.markRead(dev.id, ids)),
+        onGiveTime: (ids, d) async {
+          _override('unlock', d);
+          await _run(() => _repo.markRead(dev.id, ids));
+        },
+      ),
+
       // ---------------- aksi cepat
       Wrap(spacing: 8, runSpacing: 8, children: [
         MenuAnchor(
@@ -190,6 +203,11 @@ class _DevicePageState extends State<DevicePage> {
             icon: const Icon(Icons.undo),
             label: const Text('Kembali ke jadwal'),
           ),
+        OutlinedButton.icon(
+          onPressed: () => showDialog<void>(context: context, builder: (_) => _UnlockCodeDialog(dev: dev)),
+          icon: const Icon(Icons.key),
+          label: const Text('Kode buka darurat'),
+        ),
         if (!widget.embedded) _settingsMenu(dev),
       ]),
       const SizedBox(height: 20),
@@ -329,7 +347,11 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
-    final locked = decision.locked;
+    final lu = dev.status['localUnlockUntil'];
+    final localUntil = lu is num && lu > DateTime.now().millisecondsSinceEpoch
+        ? DateTime.fromMillisecondsSinceEpoch(lu.toInt())
+        : null;
+    final locked = decision.locked && localUntil == null;
     final bg = locked ? t.colorScheme.errorContainer : const Color(0xFFD7F2DE);
     final fg = locked ? t.colorScheme.onErrorContainer : const Color(0xFF0F5223);
     final reported = dev.status['locked'];
@@ -355,8 +377,11 @@ class _StatusCard extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(locked ? 'Terkunci' : 'Boleh dipakai',
                     style: t.textTheme.titleLarge?.copyWith(color: fg, fontWeight: FontWeight.bold)),
-                Text(decision.reason, style: TextStyle(color: fg)),
-                if (decision.nextChange != null)
+                Text(localUntil != null ? 'Dibuka dengan kode buka darurat' : decision.reason,
+                    style: TextStyle(color: fg)),
+                if (localUntil != null)
+                  Text('Terkunci lagi ${fmtWhen(localUntil)}', style: TextStyle(color: fg, fontWeight: FontWeight.w600))
+                else if (decision.nextChange != null)
                   Text(
                     '${locked ? 'Terbuka' : 'Terkunci'} ${fmtWhen(decision.nextChange!)}',
                     style: TextStyle(color: fg, fontWeight: FontWeight.w600),
@@ -465,6 +490,180 @@ class _ScheduleCard extends StatelessWidget {
           ]),
         ),
       ),
+    );
+  }
+}
+
+/// Pesan dari HP anak. Pesan baru disorot dengan aksi cepat; pesan lama bisa dibuka.
+class _MessagesCard extends StatefulWidget {
+  final Stream<List<ChildMessage>> stream;
+  final void Function(List<String> ids) onRead;
+  final void Function(List<String> ids, Duration? d) onGiveTime;
+  const _MessagesCard({required this.stream, required this.onRead, required this.onGiveTime});
+
+  @override
+  State<_MessagesCard> createState() => _MessagesCardState();
+}
+
+class _MessagesCardState extends State<_MessagesCard> {
+  bool _showOld = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return StreamBuilder<List<ChildMessage>>(
+      stream: widget.stream,
+      builder: (context, snap) {
+        final all = snap.data ?? const <ChildMessage>[];
+        if (all.isEmpty) return const SizedBox.shrink();
+        final unread = all.where((m) => !m.read).toList();
+        final old = all.where((m) => m.read).toList();
+        final unreadIds = [for (final m in unread) m.id];
+
+        Widget tile(ChildMessage m) => ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(m.read ? Icons.chat_bubble_outline : Icons.chat_bubble, color: m.read ? t.colorScheme.outline : t.colorScheme.primary),
+              title: Text(m.text, style: m.read ? null : const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(m.createdAt == null ? 'mengirim…' : fmtAgo(m.createdAt!)),
+            );
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Card(
+            color: unread.isNotEmpty ? t.colorScheme.primaryContainer : null,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  Icon(Icons.forum_outlined, color: t.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      unread.isEmpty ? 'Pesan dari anak' : 'Pesan baru dari anak (${unread.length})',
+                      style: t.textTheme.titleMedium,
+                    ),
+                  ),
+                ]),
+                for (final m in unread) tile(m),
+                if (unread.isNotEmpty)
+                  Wrap(spacing: 8, runSpacing: 8, children: [
+                    FilledButton.tonal(onPressed: () => widget.onRead(unreadIds), child: const Text('Oke, sudah dibaca')),
+                    MenuAnchor(
+                      builder: (c, ctrl, _) => FilledButton.icon(
+                        onPressed: () => ctrl.isOpen ? ctrl.close() : ctrl.open(),
+                        icon: const Icon(Icons.more_time),
+                        label: const Text('Beri waktu'),
+                      ),
+                      menuChildren: [
+                        for (final e in _durations)
+                          MenuItemButton(onPressed: () => widget.onGiveTime(unreadIds, e.$2), child: Text(e.$1)),
+                      ],
+                    ),
+                  ]),
+                if (old.isNotEmpty)
+                  TextButton(
+                    onPressed: () => setState(() => _showOld = !_showOld),
+                    child: Text(_showOld ? 'Sembunyikan pesan lama' : 'Lihat pesan lama (${old.length})'),
+                  ),
+                if (_showOld) for (final m in old) tile(m),
+              ]),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Kode 6 digit untuk membuka HP anak tanpa internet. Dibacakan ke anak (mis. lewat telepon).
+class _UnlockCodeDialog extends StatefulWidget {
+  final DeviceInfo dev;
+  const _UnlockCodeDialog({required this.dev});
+  @override
+  State<_UnlockCodeDialog> createState() => _UnlockCodeDialogState();
+}
+
+class _UnlockCodeDialogState extends State<_UnlockCodeDialog> {
+  int _idx = 1; // default 1 jam
+  String? _secret;
+  Object? _error;
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    Repo.instance.ensureUnlockSecret(widget.dev).then(
+          (s) => mounted ? setState(() => _secret = s) : null,
+          onError: (Object e) => mounted ? setState(() => _error = e) : null,
+        );
+    // Kode berganti tiap 5 menit; render ulang supaya selalu yang terbaru.
+    _tick = Timer.periodic(const Duration(seconds: 5), (_) => mounted ? setState(() {}) : null);
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final now = DateTime.now();
+    final ready = widget.dev.status['unlockReady'] == true;
+    Widget body;
+    if (_error != null) {
+      body = Text('Gagal: $_error');
+    } else if (_secret == null) {
+      body = const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
+    } else {
+      final code = UnlockCode.code(_secret!, UnlockCode.stepAt(now), _idx);
+      body = Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('Buka HP anak selama:'),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.center, children: [
+          for (var i = 0; i < UnlockCode.durations.length; i++)
+            ChoiceChip(
+              label: Text(UnlockCode.durations[i].$1),
+              selected: _idx == i,
+              onSelected: (_) => setState(() => _idx = i),
+            ),
+        ]),
+        const SizedBox(height: 20),
+        SelectableText(
+          '${code.substring(0, 3)} ${code.substring(3)}',
+          style: t.textTheme.displayMedium?.copyWith(letterSpacing: 6, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text('Berlaku sampai ${DateFormat('HH:mm').format(UnlockCode.validUntil(now))} · sekali pakai',
+            style: t.textTheme.bodySmall),
+        const SizedBox(height: 16),
+        const Text(
+          'Di HP anak: layar kunci → "Masukkan kode orang tua" → ketik kode ini. '
+          'Bisa dipakai walau HP anak tidak ada internet.',
+          textAlign: TextAlign.center,
+        ),
+        if (!ready) ...[
+          const SizedBox(height: 12),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.warning_amber, size: 18, color: t.colorScheme.error),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'HP anak belum menerima kunci kode. Pastikan HP anak online sekali '
+                '(dengan versi aplikasi terbaru), setelah itu kode bisa dipakai offline.',
+                style: TextStyle(color: t.colorScheme.error),
+              ),
+            ),
+          ]),
+        ],
+      ]);
+    }
+    return AlertDialog(
+      title: const Text('Kode buka darurat'),
+      content: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 380), child: body),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup'))],
     );
   }
 }

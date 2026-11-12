@@ -30,6 +30,10 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     }
                     "status" -> result.success(status())
+                    "openMessage" -> {
+                        MessageActivity.open(this)
+                        result.success(null)
+                    }
                     "openAccessibility" -> {
                         Prefs.pauseGuard(this, 120_000)
                         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))

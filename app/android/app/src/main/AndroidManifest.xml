@@ -30,6 +30,16 @@
             </intent-filter>
         </activity>
 
+        <!-- Kirim pesan ke orang tua (bisa dibuka dari layar kunci) -->
+        <activity
+            android:name=".MessageActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.mihan.parentallink.message"
+            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
         <!-- Penegak jadwal: sinkron Firestore + evaluasi berkala -->
         <service
             android:name=".EnforcerService"
@@ -90,5 +100,13 @@
         <intent>
             <action android:name="android.intent.action.DIAL" />
         </intent>
+        <!-- Mode "Pilih Wi-Fi" di layar kunci: buka panel Wi-Fi & kenali halaman Settings. -->
+        <intent>
+            <action android:name="android.settings.panel.action.WIFI" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.WIFI_SETTINGS" />
+        </intent>
+        <package android:name="com.android.settings" />
     </queries>
 </manifest>

@@ -26,4 +26,7 @@ class Enforcer {
   static Future<void> requestAdmin() => _ch.invokeMethod('requestAdmin');
   static Future<void> requestBattery() => _ch.invokeMethod('requestBattery');
   static Future<void> requestNotifications() => _ch.invokeMethod('requestNotifications');
+
+  /// Buka layar kirim pesan ke orang tua (native, juga bisa dari layar kunci).
+  static Future<void> openMessage() => _ch.invokeMethod('openMessage');
 }

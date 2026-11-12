@@ -32,10 +32,10 @@ class MihanParentalLinkApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme(Brightness b) => ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D6B), brightness: b),
-          useMaterial3: true,
-          cardTheme: const CardThemeData(margin: EdgeInsets.zero),
-        );
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D6B), brightness: b),
+      useMaterial3: true,
+      cardTheme: const CardThemeData(margin: EdgeInsets.zero),
+    );
     return MaterialApp(
       title: 'Mihan Parental Link',
       debugShowCheckedModeBanner: false,
@@ -51,7 +51,8 @@ class MihanParentalLinkApp extends StatelessWidget {
 
 /// Menentukan layar awal:
 /// - Android & sudah dipasangkan sebagai HP anak → ChildHome
-/// - Login sebagai orang tua (bukan anonim) → ParentHome
+/// - Sedang menghubungkan HP anak → PairPage
+/// - Sudah login → ParentHome
 /// - Web → login orang tua
 /// - Selain itu → pilih peran
 class RootGate extends StatefulWidget {
@@ -81,12 +82,13 @@ class _RootGateState extends State<RootGate> {
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) return const _Splash();
             final user = snap.data;
+            // Mode anak dicek duluan: saat pairing, HP anak sudah login Google tapi bukan orang tua.
+            if (!kIsWeb && _role == 'child') {
+              return PairPage(onPaired: _refresh, onBack: () => setState(() => _role = null));
+            }
             if (user != null && !user.isAnonymous) return ParentHome(user: user);
             if (kIsWeb || _role == 'parent') {
               return AuthPage(onBack: kIsWeb ? null : () => setState(() => _role = null));
-            }
-            if (_role == 'child') {
-              return PairPage(onPaired: _refresh, onBack: () => setState(() => _role = null));
             }
             return RolePage(onPick: (r) => setState(() => _role = r));
           },
@@ -108,23 +110,28 @@ class _SetupMissing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.cloud_off, size: 56),
-                const SizedBox(height: 16),
-                Text('Firebase belum dikonfigurasi', style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 12),
-                const Text('Jalankan `flutterfire configure --platforms=android,web` di folder app/, '
-                    'lalu build ulang. Lihat README.md.'),
-                const SizedBox(height: 12),
-                Text('$error', style: Theme.of(context).textTheme.bodySmall),
-              ]),
-            ),
+    body: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off, size: 56),
+              const SizedBox(height: 16),
+              Text('Firebase belum dikonfigurasi', style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 12),
+              const Text(
+                'Jalankan `flutterfire configure --platforms=android,web` di folder app/, '
+                'lalu build ulang. Lihat README.md.',
+              ),
+              const SizedBox(height: 12),
+              Text('$error', style: Theme.of(context).textTheme.bodySmall),
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
