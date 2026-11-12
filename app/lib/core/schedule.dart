@@ -15,7 +15,7 @@
 ///   selama belum kedaluwarsa.
 ///
 /// PENTING: logika ini diporting 1:1 ke Kotlin di
-/// android/app/src/main/kotlin/com/octalink/octalink/PolicyEngine.kt.
+/// android/app/src/main/kotlin/com/mihan/parentallink/PolicyEngine.kt.
 /// Kalau mengubah aturan di sini, ubah juga di sana.
 library;
 

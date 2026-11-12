@@ -1,4 +1,4 @@
-package com.octalink.octalink
+package com.mihan.parentallink
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -41,7 +41,7 @@ import java.util.TimeZone
 class EnforcerService : Service(), LockState.Listener {
     companion object {
         private const val TAG = "OctaEnforcer"
-        private const val CHANNEL = "octalink_status"
+        private const val CHANNEL = "mihan_status"
         private const val NOTIF_ID = 42
         private const val TICK_MS = 15_000L
         private const val HEARTBEAT_MS = 60_000L
@@ -213,7 +213,7 @@ class EnforcerService : Service(), LockState.Listener {
 
     private fun createChannel() {
         if (Build.VERSION.SDK_INT < 26) return
-        val ch = NotificationChannel(CHANNEL, "Status OctaLink", NotificationManager.IMPORTANCE_LOW)
+        val ch = NotificationChannel(CHANNEL, "Status Mihan Parental Link", NotificationManager.IMPORTANCE_LOW)
         ch.setShowBadge(false)
         getSystemService(NotificationManager::class.java).createNotificationChannel(ch)
     }
@@ -227,7 +227,7 @@ class EnforcerService : Service(), LockState.Listener {
         } ?: ""
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
-            .setContentTitle(if (d.locked) "HP terkunci" else "OctaLink aktif")
+            .setContentTitle(if (d.locked) "HP terkunci" else "Mihan Parental Link aktif")
             .setContentText(d.reason + next)
             .setOngoing(true)
             .setContentIntent(open)

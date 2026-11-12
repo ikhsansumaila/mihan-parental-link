@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:octalink/core/schedule.dart';
+import 'package:mihan_parental_link/core/schedule.dart';
 
 Schedule sched(
   String id, {

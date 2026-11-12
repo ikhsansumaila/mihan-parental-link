@@ -1,4 +1,4 @@
-package com.octalink.octalink
+package com.mihan.parentallink
 
 import android.accessibilityservice.AccessibilityService
 import android.app.admin.DevicePolicyManager
@@ -33,7 +33,7 @@ import java.util.Locale
  * - Menampilkan overlay layar kunci penuh saat jadwal mengunci (TYPE_ACCESSIBILITY_OVERLAY,
  *   tidak perlu izin "tampil di atas aplikasi lain").
  * - Mengizinkan aplikasi telepon/darurat tetap bisa dipakai.
- * - Tamper guard: menutup halaman Settings yang menampilkan OctaLink (mencegah mematikan
+ * - Tamper guard: menutup halaman Settings yang menampilkan Mihan Parental Link (mencegah mematikan
  *   layanan / admin / uninstall) bila diaktifkan orang tua.
  */
 class GuardService : AccessibilityService(), LockState.Listener {

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 /// Jembatan ke kode Kotlin (lihat MainActivity.kt). Hanya berfungsi di Android.
 class Enforcer {
-  static const _ch = MethodChannel('octalink/enforcer');
+  static const _ch = MethodChannel('mihan_parental_link/enforcer');
 
   static bool get supported => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 

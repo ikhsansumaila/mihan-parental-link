@@ -22,12 +22,12 @@ Future<void> main() async {
   } catch (e) {
     initError = e;
   }
-  runApp(OctaLinkApp(initError: initError));
+  runApp(MihanParentalLinkApp(initError: initError));
 }
 
-class OctaLinkApp extends StatelessWidget {
+class MihanParentalLinkApp extends StatelessWidget {
   final Object? initError;
-  const OctaLinkApp({super.key, this.initError});
+  const MihanParentalLinkApp({super.key, this.initError});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class OctaLinkApp extends StatelessWidget {
           cardTheme: const CardThemeData(margin: EdgeInsets.zero),
         );
     return MaterialApp(
-      title: 'OctaLink',
+      title: 'Mihan Parental Link',
       debugShowCheckedModeBanner: false,
       theme: theme(Brightness.light),
       darkTheme: theme(Brightness.dark),

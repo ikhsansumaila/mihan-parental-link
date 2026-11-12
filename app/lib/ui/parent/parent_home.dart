@@ -53,7 +53,7 @@ class _ParentHomeState extends State<ParentHome> {
           );
 
           final appBar = AppBar(
-            title: const Text('OctaLink'),
+            title: const Text('Mihan Parental Link'),
             actions: [
               PopupMenuButton<String>(
                 icon: const Icon(Icons.account_circle),
@@ -128,7 +128,7 @@ class _DeviceList extends StatelessWidget {
             const SizedBox(height: 12),
             Text('Belum ada HP anak', style: t.textTheme.titleMedium),
             const SizedBox(height: 8),
-            const Text('Pasang aplikasi OctaLink di HP anak, pilih "Anak", lalu masukkan kode pairing.',
+            const Text('Pasang aplikasi Mihan Parental Link di HP anak, pilih "Anak", lalu masukkan kode pairing.',
                 textAlign: TextAlign.center),
             const SizedBox(height: 16),
             FilledButton.icon(onPressed: onAdd, icon: const Icon(Icons.add), label: const Text('Tambah HP anak')),
@@ -250,7 +250,7 @@ class _PairDialogState extends State<_PairDialog> {
       ]);
     } else {
       body = Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Di HP anak: buka OctaLink → pilih "Anak" → masukkan kode:', textAlign: TextAlign.center),
+        const Text('Di HP anak: buka Mihan Parental Link → pilih "Anak" → masukkan kode:', textAlign: TextAlign.center),
         const SizedBox(height: 16),
         SelectableText(
           '${_code!.substring(0, 3)} ${_code!.substring(3)}',

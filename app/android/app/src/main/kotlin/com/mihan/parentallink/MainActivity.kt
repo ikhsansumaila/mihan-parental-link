@@ -1,4 +1,4 @@
-package com.octalink.octalink
+package com.mihan.parentallink
 
 import android.Manifest
 import android.app.NotificationManager
@@ -18,7 +18,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "octalink/enforcer").setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mihan_parental_link/enforcer").setMethodCallHandler { call, result ->
             try {
                 when (call.method) {
                     "getDeviceId" -> result.success(Prefs.deviceId(this))

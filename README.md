@@ -1,4 +1,4 @@
-# OctaLink
+# Mihan Parental Link
 
 Aplikasi pengawasan HP anak (mirip Google Family Link) dengan dua fitur yang tidak ada di Family Link:
 
@@ -21,7 +21,7 @@ app/
   lib/data/repo.dart          ← akses Firestore
   lib/ui/parent/…             ← dashboard orang tua (responsif: ≥900px dua panel)
   lib/ui/child/…              ← pairing + checklist izin di HP anak
-  android/app/src/main/kotlin/com/octalink/octalink/
+  android/app/src/main/kotlin/com/mihan/parentallink/
     PolicyEngine.kt           ← port 1:1 engine Dart (dites: src/test/…/PolicyEngineTest.kt)
     EnforcerService.kt        ← foreground service: sinkron Firestore, evaluasi tiap 15 dtk, heartbeat
     GuardService.kt           ← Accessibility Service: overlay layar kunci + anti-tamper
@@ -86,9 +86,9 @@ admin perangkat dicabut, jadi aplikasi bisa di-uninstall.
 
 ## Keterbatasan yang diketahui (MVP)
 - **Jam HP diubah anak**: engine memakai jam lokal perangkat. Tamper guard menutup Settings yang
-  menyebut OctaLink, tapi belum menutup halaman tanggal/jam. Rencana: pakai offset waktu server.
+  menyebut Mihan Parental Link, tapi belum menutup halaman tanggal/jam. Rencana: pakai offset waktu server.
 - **Safe mode / factory reset** tetap bisa mem-bypass. Proteksi penuh butuh mode *Device Owner*
   (provisioning via QR/adb saat HP baru di-reset). Itu pengembangan berikutnya.
 - Belum ada: batas total menit per hari, blokir per-aplikasi, laporan pemakaian, notifikasi push ke orang tua.
-- Overlay menutupi seluruh layar saat terkunci, termasuk app OctaLink sendiri. Kalau mau mengatur
+- Overlay menutupi seluruh layar saat terkunci, termasuk app Mihan Parental Link sendiri. Kalau mau mengatur
   izin di HP anak saat jam terkunci, beri "waktu tambahan" dulu dari dashboard.

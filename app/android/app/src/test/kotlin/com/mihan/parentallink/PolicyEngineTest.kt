@@ -1,4 +1,4 @@
-package com.octalink.octalink
+package com.mihan.parentallink
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

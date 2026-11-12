@@ -46,7 +46,7 @@ class _PairPageState extends State<PairPage> {
       appBar: AppBar(leading: BackButton(onPressed: widget.onBack), title: const Text('Hubungkan HP anak')),
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(24), children: [
-          const Text('Minta orang tua menekan "Tambah HP anak" di aplikasi atau web OctaLink, '
+          const Text('Minta orang tua menekan "Tambah HP anak" di aplikasi atau web Mihan Parental Link, '
               'lalu masukkan kode 6 digit yang muncul.'),
           const SizedBox(height: 24),
           TextField(

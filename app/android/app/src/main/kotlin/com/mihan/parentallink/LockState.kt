@@ -1,11 +1,11 @@
-package com.octalink.octalink
+package com.mihan.parentallink
 
 import android.content.Context
 import android.content.SharedPreferences
 
 /** Penyimpanan lokal: ID device + policy terakhir dari Firestore (supaya jalan offline). */
 object Prefs {
-    private const val FILE = "octalink"
+    private const val FILE = "mihan_parental_link"
     private fun sp(c: Context): SharedPreferences = c.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
 
     fun deviceId(c: Context): String? = sp(c).getString("deviceId", null)

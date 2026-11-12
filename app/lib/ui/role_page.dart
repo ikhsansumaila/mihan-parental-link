@@ -35,7 +35,7 @@ class RolePage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: ListView(padding: const EdgeInsets.all(24), shrinkWrap: true, children: [
-              Text('OctaLink', style: t.textTheme.displaySmall, textAlign: TextAlign.center),
+              Text('Mihan Parental Link', style: t.textTheme.displaySmall, textAlign: TextAlign.center),
               const SizedBox(height: 8),
               const Text('HP ini akan dipakai oleh siapa?', textAlign: TextAlign.center),
               const SizedBox(height: 32),

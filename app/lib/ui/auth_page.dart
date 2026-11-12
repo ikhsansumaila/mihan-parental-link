@@ -75,7 +75,7 @@ class _AuthPageState extends State<AuthPage> {
             child: ListView(padding: const EdgeInsets.all(24), shrinkWrap: true, children: [
               Icon(Icons.shield_moon_outlined, size: 56, color: t.colorScheme.primary),
               const SizedBox(height: 12),
-              Text('OctaLink', style: t.textTheme.headlineMedium, textAlign: TextAlign.center),
+              Text('Mihan Parental Link', style: t.textTheme.headlineMedium, textAlign: TextAlign.center),
               Text(_register ? 'Buat akun orang tua' : 'Masuk sebagai orang tua',
                   textAlign: TextAlign.center, style: t.textTheme.bodyLarge),
               const SizedBox(height: 24),

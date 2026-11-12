@@ -1,4 +1,4 @@
-package com.octalink.octalink
+package com.mihan.parentallink
 
 import android.app.admin.DeviceAdminReceiver
 import android.content.BroadcastReceiver

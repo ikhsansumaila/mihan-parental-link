@@ -68,7 +68,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('OctaLink')),
+      appBar: AppBar(title: const Text('Mihan Parental Link')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
         Card(
           color: locked ? t.colorScheme.errorContainer : const Color(0xFFD7F2DE),
@@ -93,13 +93,13 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
             required: true),
         perm('admin', 'Admin perangkat', 'Mencegah aplikasi di-uninstall tanpa izin.', Enforcer.requestAdmin,
             required: true),
-        perm('battery', 'Abaikan optimasi baterai', 'Supaya OctaLink tidak dimatikan sistem.',
+        perm('battery', 'Abaikan optimasi baterai', 'Supaya Mihan Parental Link tidak dimatikan sistem.',
             Enforcer.requestBattery),
-        perm('notifications', 'Notifikasi', 'Menampilkan status OctaLink di bilah notifikasi.',
+        perm('notifications', 'Notifikasi', 'Menampilkan status Mihan Parental Link di bilah notifikasi.',
             Enforcer.requestNotifications),
         const SizedBox(height: 16),
         Text(
-          'Untuk melepas HP ini, orang tua memilih "Lepaskan perangkat" dari aplikasi/web OctaLink.\n'
+          'Untuk melepas HP ini, orang tua memilih "Lepaskan perangkat" dari aplikasi/web Mihan Parental Link.\n'
           'ID: ${widget.deviceId}',
           style: t.textTheme.bodySmall,
         ),

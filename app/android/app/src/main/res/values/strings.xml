@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OctaLink</string>
+    <string name="app_name">Mihan Parental Link</string>
     <string name="guard_summary">Mengunci HP sesuai jadwal dari orang tua</string>
-    <string name="guard_description">OctaLink memakai layanan aksesibilitas untuk menampilkan layar kunci di luar jam pakai yang ditentukan orang tua, dan untuk mencegah pengaturan pengawasan dimatikan tanpa izin. OctaLink tidak membaca isi pesan, kata sandi, atau mengirim isi layar ke mana pun.</string>
+    <string name="guard_description">Mihan Parental Link memakai layanan aksesibilitas untuk menampilkan layar kunci di luar jam pakai yang ditentukan orang tua, dan untuk mencegah pengaturan pengawasan dimatikan tanpa izin. Mihan Parental Link tidak membaca isi pesan, kata sandi, atau mengirim isi layar ke mana pun.</string>
     <string name="admin_description">Mencegah aplikasi pengawasan dihapus tanpa izin orang tua.</string>
 </resources>

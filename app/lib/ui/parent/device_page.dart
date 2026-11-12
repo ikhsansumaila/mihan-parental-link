@@ -336,7 +336,7 @@ class _StatusCard extends StatelessWidget {
     final mismatch = reported is bool && reported != locked && dev.online;
 
     final warnings = <String>[
-      if (dev.status['accessibility'] != true) 'Layanan aksesibilitas OctaLink mati — HP tidak bisa dikunci.',
+      if (dev.status['accessibility'] != true) 'Layanan aksesibilitas Mihan Parental Link mati — HP tidak bisa dikunci.',
       if (dev.status['admin'] != true) 'Admin perangkat belum aktif — aplikasi mudah di-uninstall.',
       if (!dev.online) 'HP offline${dev.lastSeen != null ? ' (terakhir ${fmtAgo(dev.lastSeen!)})' : ''}. '
           'Jadwal tetap berjalan di HP, perubahan diterapkan saat online.',
