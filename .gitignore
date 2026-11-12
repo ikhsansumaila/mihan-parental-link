@@ -1,0 +1,22 @@
+# ── Rahasia: JANGAN di-commit ─────────────────────────────
+**/key.properties
+*.jks
+*.keystore
+.env
+.env.*
+
+# ── Build & cache ────────────────────────────────────────
+build/
+.dart_tool/
+.gradle/
+.kotlin/
+.cxx/
+**/android/local.properties
+.firebase/
+*.log
+
+# ── IDE / OS ─────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+.DS_Store

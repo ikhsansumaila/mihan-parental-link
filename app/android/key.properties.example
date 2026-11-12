@@ -1,0 +1,6 @@
+# Salin jadi key.properties (file itu di-ignore git), lalu isi passwordnya.
+# storeFile relatif terhadap folder android/
+storeFile=octalink-release.jks
+storePassword=GANTI_PASSWORD
+keyAlias=octalink
+keyPassword=GANTI_PASSWORD

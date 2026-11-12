@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function isParent() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
+
+    // Kode pairing 6 digit, dibuat orang tua, berlaku 15 menit, sekali pakai.
+    match /pairingCodes/{code} {
+      allow create: if isParent()
+        && code.matches('^[0-9]{6}$')
+        && request.resource.data.ownerUid == uid()
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt < request.time + duration.value(20, 'm');
+      // get (bukan list) supaya kode tidak bisa di-enumerasi.
+      allow get: if signedIn();
+      allow delete: if signedIn();
+    }
+
+    match /devices/{deviceId} {
+      function isOwner() { return signedIn() && resource.data.ownerUid == uid(); }
+      function isChild() { return signedIn() && resource.data.childUid == uid(); }
+
+      // resource == null → dokumen sudah dihapus; HP anak perlu tahu supaya melepas proteksi.
+      allow get: if signedIn() && (resource == null || isOwner() || isChild());
+      allow list: if signedIn() && resource.data.ownerUid == uid();
+
+      // HP anak membuat dokumen dengan kode pairing yang valid.
+      allow create: if signedIn()
+        && request.resource.data.childUid == uid()
+        && exists(/databases/$(database)/documents/pairingCodes/$(request.resource.data.pairingCode))
+        && get(/databases/$(database)/documents/pairingCodes/$(request.resource.data.pairingCode)).data.ownerUid
+             == request.resource.data.ownerUid
+        && get(/databases/$(database)/documents/pairingCodes/$(request.resource.data.pairingCode)).data.expiresAt
+             > request.time;
+
+      // Orang tua: boleh ubah apa saja kecuali kepemilikan.
+      // Anak: hanya status & lastSeen (tidak bisa mengubah jadwal).
+      allow update: if (isOwner()
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.childUid == resource.data.childUid)
+        || (isChild()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'lastSeen']));
+
+      allow delete: if isOwner();
+    }
+  }
+}
