@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "864408224205",
+    "project_id": "mihan-parental-link",
+    "storage_bucket": "mihan-parental-link.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864408224205:android:d093486fd8bc908b5a8484",
+        "android_client_info": {
+          "package_name": "com.octalink.octalink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVynXVrky4JCoCHyHwN1PSLOdmo0F3W3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
